@@ -17,7 +17,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new RpcCustomExceptionFilter());
-
+  console.log("Updating...");
   await app.listen(process.env.PORT ?? 3000);
 
   logger.log(`Client Gateway running on port ${process.env.PORT}`);
