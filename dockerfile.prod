@@ -1,20 +1,41 @@
-FROM node:latest
+# 🟢 Dependencias
+FROM node:21-alpine3.19 AS deps
 
-# Establecer el directorio de trabajo
 WORKDIR /usr/src/app
 
-# Copiar los archivos de definición de dependencias
-COPY package.json ./
-COPY pnpm-lock.yaml ./
+# Copiar los archivos necesarios para instalar dependencias 
+COPY package.json pnpm-lock.yaml ./
 
-# Instalar pnpm
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@10.6.3 --activate && \ 
+    pnpm install --frozen-lockfile
 
-# Instalar dependencias usando pnpm
-RUN pnpm install
+# 🟢 Builder
+FROM node:21-alpine3.19 AS build
 
-# Copiar todo el código fuente
+WORKDIR /usr/src/app
+
+RUN corepack enable && corepack prepare pnpm@10.6.3 --activate
+
+# Copiar node_modules y el cliente de Prisma generado desde la etapa de dependencias
+COPY --from=deps /usr/src/app/node_modules ./node_modules 
+
 COPY . .
 
-# Exponer el puerto que usará la aplicación
-EXPOSE 3000
+RUN pnpm run build && \
+    pnpm install --prod --frozen-lockfile && \
+    pnpm store prune
+
+# 🟢 Imagen final
+FROM node:21-alpine3.19 AS prod
+
+WORKDIR /usr/src/app
+
+# Copiar solo lo necesario para producción
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist ./dist
+
+ENV NODE_ENV=production
+
+USER node
+
+CMD ["node", "dist/main.js"]
