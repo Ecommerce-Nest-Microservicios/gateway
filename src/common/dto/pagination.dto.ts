@@ -18,7 +18,7 @@ export class PaginationDto {
 export class StatusDto {
   @IsNotEmpty()
   @IsEnum(OrderStatus, {
-    message: `Possible satus values are ${[OrderStatus.CANCELLED, OrderStatus.DELIVERED, OrderStatus.PENDING]}`,
+    message: `Possible satus values are ${[OrderStatus.CANCELLED, OrderStatus.DELIVERED, OrderStatus.PENDING, OrderStatus.PAID]}`,
   })
   status?: OrderStatus;
 }
