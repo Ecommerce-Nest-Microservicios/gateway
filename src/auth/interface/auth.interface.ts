@@ -8,7 +8,9 @@ export interface IAuthData {
   user: IAuth;
   token: string;
 }
-
+export interface IVerifyPayload {
+  token: string;
+}
 export interface IAuthClientResponse {
   ok: boolean;
   message: string;

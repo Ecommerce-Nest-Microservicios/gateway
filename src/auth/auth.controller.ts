@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Body, Inject } from "@nestjs/common";
-import { catchError, Observable } from "rxjs";
+import { Controller, Get, Post, Body, Inject, UseGuards } from "@nestjs/common";
+import { catchError, Observable, of } from "rxjs";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { NATS_SERVICE } from "src/config/microservices";
-import { IAuthClientResponse, IAuthData } from "./interface/auth.interface";
+import { IAuth, IAuthClientResponse, IAuthData } from "./interface/auth.interface";
 import { LoginAuthDto } from "./dto/login-auth.dto";
 import { RegisterAuthDto } from "./dto/register-auth.dto";
+import { AuthGuard } from "./guard/auth.guard";
+import { User } from "./decorators/user.decorator";
+import { Token } from "./decorators/token.decorator";
+import { ok } from "assert";
 
 @Controller("auth")
 export class AuthController {
@@ -28,12 +32,18 @@ export class AuthController {
     );
   }
 
+  @UseGuards(AuthGuard)
   @Get("verify")
-  verify(@Body() authData: IAuthData): Observable<IAuthClientResponse> {
-    return this.client.send("verifyUserAuth", { ...authData }).pipe(
-      catchError((error) => {
-        throw new RpcException(error);
-      }),
-    );
+  verify(@User() user: IAuth, @Token() token: string): Observable<IAuthClientResponse> {
+    const authData: IAuthData = {
+      user,
+      token,
+    };
+
+    return of({
+      ok: true,
+      message: "Verify success",
+      data: authData,
+    });
   }
 }
