@@ -4,6 +4,7 @@ import { environments } from "./config/environments";
 import { ProductsModule } from "./products/products.module";
 import { NatsModule } from "./transports/nats.module";
 import { OrdersModule } from "./orders/orders.module";
+import { AuthModule } from './auth/auth.module';
 import * as Joi from "joi";
 import config from "./config/config";
 
@@ -32,6 +33,7 @@ import config from "./config/config";
     ProductsModule,
     NatsModule,
     OrdersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
