@@ -10,7 +10,7 @@ import { RegisterAuthDto } from "./dto/register-auth.dto";
 export class AuthController {
   constructor(@Inject(NATS_SERVICE) private readonly client: ClientProxy) {}
 
-  @Post()
+  @Post("register")
   reister(@Body() registerAuthDto: RegisterAuthDto): Observable<IAuthClientResponse> {
     return this.client.send("registerUserAuth", { ...registerAuthDto }).pipe(
       catchError((error) => {
@@ -19,7 +19,7 @@ export class AuthController {
     );
   }
 
-  @Post()
+  @Post("login")
   login(@Body() loginAuthDto: LoginAuthDto): Observable<IAuthClientResponse> {
     return this.client.send("loginUserAuth", { ...loginAuthDto }).pipe(
       catchError((error) => {
@@ -28,7 +28,7 @@ export class AuthController {
     );
   }
 
-  @Get()
+  @Get("verify")
   verify(@Body() authData: IAuthData): Observable<IAuthClientResponse> {
     return this.client.send("verifyUserAuth", { ...authData }).pipe(
       catchError((error) => {
